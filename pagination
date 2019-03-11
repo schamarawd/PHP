@@ -1,0 +1,91 @@
+<?php
+
+if(isset($_GET['page'])){
+    $page = $_GET['page'];
+  }else{
+    $page = 1;
+  }
+
+  if($page == ''|| $page == 1){
+    $page1 = 0;
+  }else{
+    $page1 = ($page*10)-10;
+  }
+
+
+$sql = 'SELECT * from chq_dates ORDER BY receipt_no DESC LIMIT '.$page1.',10';
+$result = $conn->query($sql);
+
+//pagination
+$sql = 'SELECT * from chq_dates';
+$data = $conn->query($sql);
+$records = $data->num_rows;
+$records_pages = $records/10;
+$records_pages = ceil($records_pages);
+$prev = $page-1;
+$next = $page+1;
+echo "<p>";
+echo 'Total Records:';
+echo $records;
+echo "</p>";
+
+
+echo '<ul class="pagination">';
+if ($page >= 5) {
+  echo '<li><a style="color:red;" href="?page=1">First</a></li>';
+  }
+
+if ($prev >= 1) {
+  echo '<li><a style="color:red;" href="?page='.$prev.'">Prev</a></li>';
+  }
+
+
+if ($records_pages >= 2) {
+  for ($r=1; $r <= $records_pages; $r++) { 
+    $active = $r == $page ? 'class="active"' : '';
+    echo '<li><a style="color:red;" href="?page='.$r.'" '.$active.'>'.$r.'</a></li>';
+  }
+}
+
+if ($next <= $records_pages && $records_pages >=2) {
+  echo '<li><a style="color:red;" href="?page='.$next.'">Next</a></li>';
+  }
+
+echo '</ul>';
+if ($result->num_rows > 0) {
+    // output data of each row
+	echo ("<table border=1>");
+	echo ("<tr>
+				<th>Customer</th>
+				<th>Bill Date</th>
+				<th>Invoice No</th>
+				<th>Cheque No</th>
+				<th>Receipt No</th>
+				<th>Amount</th>
+				<th>Banking Date</th>
+				<th>Bank</th>
+        <th>Days</th>
+			</tr>");
+    while($row = $result->fetch_array()) {
+        echo ("<tr>
+        			<td><a href=edit.php?chq=".$row[3].">".$row[0]."</a></td>
+        			<td>".$row[1]."</td>
+        			<td>".$row[2]."</td>
+        			<td>".$row[3]."</td>
+        			<td>".$row[4]."</td>
+        			<td>".$row[5]."</td>
+        			<td>".$row[6]."</td>
+        			<td>".$row[7]."</td>
+              <td>".$row[8]."</td>
+              
+        		</tr>");
+    }
+    // Delete button on / off 
+    //<td><a href=delete.php?chq=".$row[3].">".$row[9]."</a></td>
+	echo ("</table>");
+} else {
+    echo "0 results";
+}
+
+$conn->close();
+?>
